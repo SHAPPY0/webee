@@ -1,4 +1,7 @@
 import Event from './entities/event.entity';
+import WorkShop from './entities/workshop.entity';
+import Sequelize from "sequelize";
+
 
 
 export class EventsService {
@@ -18,7 +21,7 @@ export class EventsService {
     - partial or not working answers also get graded so make sure you commit what you have
     Sample response on GET /events/events:
     ```json
-    [
+    [ await Event.findAll();
       {
         id: 1,
         name: 'Laravel convention 2021',
@@ -85,7 +88,15 @@ export class EventsService {
      */
 
   async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
+
+    Event.hasMany(WorkShop);
+    WorkShop.belongsTo(Event);
+
+    return await Event.findAll({
+        include:[{
+          model: WorkShop
+        }]
+      })
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
@@ -155,6 +166,21 @@ export class EventsService {
     ```
      */
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+
+    const { Op } = Sequelize;
+
+    Event.hasMany(WorkShop);
+    WorkShop.belongsTo(Event);
+    
+    return await Event.findAll({
+        include:[{
+          model: WorkShop,
+          where: {
+            start: {
+              [Op.gte]:new Date()
+            }
+          }
+        }]
+      })
   }
 }
